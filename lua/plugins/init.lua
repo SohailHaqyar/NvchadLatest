@@ -32,6 +32,7 @@ return {
 
 			renderer = {},
 		},
+		enabled = false,
 	},
 
 	-- These are some examples, uncomment them if you want to see them work!
@@ -291,19 +292,6 @@ return {
 	--     require "custom.configs.rustaceanvim"
 	--   end,
 	-- },
-	-- {
-	--   "saecki/crates.nvim",
-	--   ft = { "toml" },
-	--   config = function(_, opts)
-	--     local crates = require "crates"
-	--     crates.setup(opts)
-	--     require("cmp").setup.buffer {
-	--       sources = { { name = "crates" } },
-	--     }
-	--     crates.show()
-	--     require("core.utils").load_mappings "crates"
-	--   end,
-	-- },
 	{
 		"rust-lang/rust.vim",
 		ft = "rust",
@@ -311,20 +299,14 @@ return {
 			vim.g.rustfmt_autosave = 1
 		end,
 	},
-	-- {
-	--   "hrsh7th/nvim-cmp",
-	--   opts = function()
-	--     local M = require "plugins.configs.cmp"
-	--     M.completion.completeopt = "menu,menuone,noselect"
-	--     M.mapping["<CR>"] = cmp.mapping.confirm {
-	--       behavior = cmp.ConfirmBehavior.Insert,
-	--       select = false,
-	--     }
-	--     table.insert(M.sources, { name = "crates" })
-	--     return M
-	--   end,
-	-- },
-	-- { "github/copilot.vim", lazy = false },
+	{
+		"github/copilot.vim",
+		lazy = false,
+		config = function() -- Mapping tab is already used in NvChad
+			vim.g.copilot_no_tab_map = true -- Disable tab mapping
+			vim.g.copilot_assume_mapped = true -- Assume that the mapping is already done
+		end,
+	},
 	{
 		"kevinhwang91/rnvimr",
 		lazy = false,
@@ -490,12 +472,79 @@ return {
 		"luckasRanarison/tailwind-tools.nvim",
 		name = "tailwind-tools",
 		build = ":UpdateRemotePlugins",
-    lazy = false,
+		lazy = false,
 		dependencies = {
 			"nvim-treesitter/nvim-treesitter",
 			"nvim-telescope/telescope.nvim", -- optional
 			"neovim/nvim-lspconfig", -- optional
 		},
 		opts = {}, -- your configuration
+	},
+	{
+		"alexghergh/nvim-tmux-navigation",
+		lazy = false,
+		cmd = {
+			"NvimTmuxNavigateLeft",
+			"NvimTmuxNavigateDown",
+			"NvimTmuxNavigateUp",
+			"NvimTmuxNavigateRight",
+			"NvimTmuxNavigateLastActive",
+			"NvimTmuxNavigateNext",
+		},
+		config = function()
+			local nvim_tmux_nav = require("nvim-tmux-navigation")
+
+			-- vim.keymap.set({ "i", "n" }, "<C-h>", nvim_tmux_nav.NvimTmuxNavigateLeft, { noremap = true })
+			-- vim.keymap.set({ "i", "n" }, "<C-j>", nvim_tmux_nav.NvimTmuxNavigateDown, { noremap = true })
+			-- vim.keymap.set({ "i", "n" }, "<C-k>", nvim_tmux_nav.NvimTmuxNavigateUp, { noremap = true })
+			-- vim.keymap.set({ "i", "n" }, "<C-l>", nvim_tmux_nav.NvimTmuxNavigateRight, { noremap = true })
+			-- vim.keymap.set({ "i", "n" }, "<C-\\>", nvim_tmux_nav.NvimTmuxNavigateNext, { noremap = true })
+			-- vim.keymap.set({ "i", "n" }, "<C-s>", nvim_tmux_nav.NvimTmuxNavigateNext, { noremap = true })
+
+			nvim_tmux_nav.setup({
+				disable_when_zoomed = true, -- defaults to false
+			})
+		end,
+	},
+	-- {
+	-- 	"greggh/claude-code.nvim",
+	-- 	dependencies = {
+	-- 		"nvim-lua/plenary.nvim", -- Required for git operations
+	-- 	},
+	-- 	config = function()
+	-- 		require("claude-code").setup()
+	-- 	end,
+	-- },
+	{
+		"rmagatti/goto-preview",
+		dependencies = { "rmagatti/logger.nvim" },
+		event = "BufEnter",
+		config = function()
+			require("goto-preview").setup({
+				width = 120, -- Width of the floating window
+				height = 15, -- Height of the floating window
+				border = { "↖", "─", "┐", "│", "┘", "─", "└", "│" }, -- Border characters of the floating window
+				default_mappings = true, -- Bind default mappings
+				debug = false, -- Print debug information
+				opacity = nil, -- 0-100 opacity level of the floating window where 100 is fully transparent.
+				resizing_mappings = false, -- Binds arrow keys to resizing the floating window.
+				post_open_hook = nil, -- A function taking two arguments, a buffer and a window to be ran as a hook.
+				post_close_hook = nil, -- A function taking two arguments, a buffer and a window to be ran as a hook.
+				references = { -- Configure the telescope UI for slowing the references cycling window.
+					provider = "telescope", -- telescope|fzf_lua|snacks|mini_pick|default
+					telescope = require("telescope.themes").get_dropdown({ hide_preview = false }),
+				},
+				-- These two configs can also be passed down to the goto-preview definition and implementation calls for one off "peak" functionality.
+				focus_on_open = true, -- Focus the floating window when opening it.
+				dismiss_on_move = false, -- Dismiss the floating window when moving the cursor.
+				force_close = true, -- passed into vim.api.nvim_win_close's second argument. See :h nvim_win_close
+				bufhidden = "wipe", -- the bufhidden option to set on the floating window. See :h bufhidden
+				stack_floating_preview_windows = true, -- Whether to nest floating windows
+				same_file_float_preview = true, -- Whether to open a new floating window for a reference within the current file
+				preview_window_title = { enable = true, position = "left" }, -- Whether to set the preview window title as the filename
+				zindex = 1, -- Starting zindex for the stack of floating windows
+				vim_ui_input = true, -- Whether to override vim.ui.input with a goto-preview floating window
+			})
+		end,
 	},
 }

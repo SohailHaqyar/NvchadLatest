@@ -8,6 +8,7 @@ local servers = {
     },
   },
   cssls = {},
+  prismals = {},
   bashls = {},
   angularls = {
     semanticTokens = true,
